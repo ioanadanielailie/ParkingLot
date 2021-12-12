@@ -10,39 +10,48 @@
 
 <!DOCTYPE html>
 
-<t:pageTemplate pageTitle="Add car">
-    <h1>Add car</h1>
-    <form class="needs-validation" novalidate method="POST" action="${pageContext.request.contextPath}/AddCar">
+<t:pageTemplate pageTitle="Add user">
+    <h1>Add user</h1>
+    <form class="needs-validation" novalidate method="POST" action="${pageContext.request.contextPath}/Users/Create">
         <div class="row">
             <div class="col-md-6 mb-3">
-                <label for="license_plate">License Plate</label>
-                <input type="text" class="form-control" id="licensePlate" name="license_plate" placeholder="" value="" required>
+                <label for="username">Username</label>
+                <input type="text" class="form-control" id="username" name="username" placeholder="" value="" required>
                 <div class="invalid-feedback">
-                    License Plate is required.
+                    Username is required.
                 </div>
             </div>
         </div>
         <div class="row">
             <div class="col-md-6 mb-3">
-                <label for="parking_spot">Parking Spot</label>
-                <input type="text" class="form-control" id="parkingSpot" name="parking_spot" placeholder="" value="" required>
+                <label for="email">Email</label>
+                <input type="email" class="form-control" id="email" name="email" placeholder="" value="" required>
                 <div class="invalid-feedback">
-                    Parking Spot is required.
+                    Email is required.
                 </div>
             </div>
         </div>
 
         <div class="row">
             <div class="col-md-5 mb-3">
-                <label for="owner_id">Owner</label>
-                <select class="custom-select d-block w-100" id="owner_id" name="owner_id" required>
+                <label for="password">Password</label>
+                <input type="password" class="form-control" id="password" name="password" placeholder="" value="" required>
+                <div class="invalid-feedback">
+                 Password is required.
+                </div>
+            </div>
+        </div>
+        
+               <div class="row">
+            <div class="col-md-6 mb-3">
+                <label for="position">Position</label>
+                <select class="custom-select d-block w-100" id="position" name="position" required>
                     <option value="">Choose...</option>
-                    <c:forEach var="user" items="${users}" varStatus="status">
-                        <option value="${user.id}">${user.username}</option>
-                    </c:forEach>
+                    <option value="ADMINISTRATOR">Administrator</option>
+                    <option value="CLIENT">Client</option>
                 </select>
                 <div class="invalid-feedback">
-                    Please select an owner.
+                    Please select a position.
                 </div>
             </div>
         </div>

@@ -3,11 +3,19 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.park.parkinglot.servlet;
+package com.park.parkinglot.servlet.car;
 
+import com.park.parkinglot.common.CarDetails;
+import com.park.parkinglot.common.UserDetails;
+import com.park.parkinglot.ejb.CarBean;
+import com.park.parkinglot.ejb.UserBean;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.List;
+import javax.inject.Inject;
 import javax.servlet.ServletException;
+import javax.servlet.annotation.HttpConstraint;
+import javax.servlet.annotation.ServletSecurity;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -17,8 +25,15 @@ import javax.servlet.http.HttpServletResponse;
  *
  * @author ioana
  */
-@WebServlet(name = "Login", urlPatterns = {"/Login"})
-public class Login extends HttpServlet {
+@ServletSecurity(value=@HttpConstraint(rolesAllowed={"AdminRole"}))
+@WebServlet(name = "EditCar", urlPatterns = {"/Cars/Update"})
+public class EditCar extends HttpServlet {
+
+    @Inject
+    UserBean userBean;
+
+    @Inject
+    CarBean carBean;
 
     // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
     /**
@@ -32,7 +47,14 @@ public class Login extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-       request.getRequestDispatcher("/WEB-INF/pages/login.jsp").forward(request,response);
+        List<UserDetails> users = userBean.getAllUsers();
+        request.setAttribute("users", users);
+
+        int carId = Integer.parseInt(request.getParameter("id"));
+        CarDetails car = carBean.findById(carId);
+        request.setAttribute("car", car);
+
+        request.getRequestDispatcher("/WEB-INF/pages/car/editCar.jsp").forward(request, response);
     }
 
     /**
@@ -46,8 +68,13 @@ public class Login extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        request.setAttribute("message","Username or password incorrect");
-        request.getRequestDispatcher("WEB-INF/pages/login.jsp").forward(request,response);
+        String licensePlate = request.getParameter("license_plate");
+        String parkingSpot = request.getParameter("parking_spot");
+        Integer userId = Integer.parseInt(request.getParameter("owner_id"));
+        Integer carId = Integer.parseInt(request.getParameter("car_id"));
+
+        carBean.updateCar(carId, licensePlate, parkingSpot, userId);
+        response.sendRedirect(request.getContextPath() + "/Cars");
     }
 
     /**
@@ -57,7 +84,7 @@ public class Login extends HttpServlet {
      */
     @Override
     public String getServletInfo() {
-        return "Login v1.0";
+        return "EditCar v1.0";
     }// </editor-fold>
 
 }
