@@ -5,17 +5,12 @@
  */
 package com.park.parkinglot.servlet.car;
 
-import com.park.parkinglot.common.CarDetails;
+import com.park.parkinglot.common.PhotoDetails;
 import com.park.parkinglot.ejb.CarBean;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import javax.annotation.security.DeclareRoles;
+import java.io.PrintWriter;
 import javax.inject.Inject;
 import javax.servlet.ServletException;
-import javax.servlet.annotation.HttpConstraint;
-import javax.servlet.annotation.HttpMethodConstraint;
-import javax.servlet.annotation.ServletSecurity;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -25,31 +20,12 @@ import javax.servlet.http.HttpServletResponse;
  *
  * @author ioana
  */
-@DeclareRoles({"AdminRole","ClientRole"})
-@ServletSecurity(
-        value=@HttpConstraint(
-        rolesAllowed={"AdminRole"}
-        )
-        ,  
-   httpMethodConstraints={
-    @HttpMethodConstraint(value="POST",rolesAllowed={"AdminRole"})
-        }
-)
-@WebServlet(name = "Cars", urlPatterns = {"/Cars"})
-public class Cars extends HttpServlet {
+@WebServlet(name = "Photos", urlPatterns = {"/Cars/Photos"})
+public class Photos extends HttpServlet {
 
-    /**
-     * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
-     * methods.
-     *
-     * @param request servlet request
-     * @param response servlet response
-     * @throws ServletException if a servlet-specific error occurs
-     * @throws IOException if an I/O error occurs
-     */
-    
     @Inject
-    private CarBean carBean;
+    CarBean carBean;
+ 
 
     // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
     /**
@@ -63,13 +39,19 @@ public class Cars extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        request.setAttribute("activePage", "Cars");
-        request.setAttribute("NumberOfFreeParkingSpots", 10);
+        Integer carId=Integer.parseInt(request.getParameter("id"));
+        PhotoDetails photo=carBean.findPhotoByCarId(carId);
+        if(photo!=null){
+            response.setContentType(photo.getFileType());
+            response.setContentLength(photo.getFileContent().length);
+            response.getOutputStream().write(photo.getFileContent());
+        }
+        else{
+            response.sendError(HttpServletResponse.SC_NOT_FOUND);
+        }
         
-        List<CarDetails>cars=carBean.getAllCars();
-        request.setAttribute("cars", cars);
         
-        request.getRequestDispatcher("/WEB-INF/pages/car/cars.jsp").forward(request, response);
+       
     }
 
     /**
@@ -84,17 +66,6 @@ public class Cars extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         
-        String[] carIdsAsString=request.getParameterValues("car_ids");
-        if(carIdsAsString!=null){
-            List<Integer> carIds=new ArrayList<>();
-            for(String carIdAsString:carIdsAsString){
-                carIds.add(Integer.parseInt(carIdAsString));
-            }
-            carBean.deleteCarsByIds(carIds);
-            
-        }
-        response.sendRedirect(request.getContextPath()+"/Cars");
-       
     }
 
     /**
@@ -104,7 +75,7 @@ public class Cars extends HttpServlet {
      */
     @Override
     public String getServletInfo() {
-        return "Cars v1.0";
+        return "Short description";
     }// </editor-fold>
 
 }
